@@ -156,11 +156,7 @@ public class AdaptHiveParquetReader<T> extends CloseableGroup implements Closeab
         throw new RuntimeIOException(e);
       }
 
-      long rowPosition = rowGroupsStartRowPos[nextRowGroup];
-      nextRowGroupStart += pages.getRowCount();
-      nextRowGroup += 1;
-
-      model.setPageSource(pages, rowPosition);
+      model.setPageSource(pages);
     }
 
     @Override
