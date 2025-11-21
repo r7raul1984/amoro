@@ -1713,7 +1713,7 @@
             <properties>
                 <spark.version>3.3.4</spark.version>
                 <spark.major.version>3.3</spark.major.version>
-                <iceberg.version>1.8.1</iceberg.version>
+                <iceberg.version>1.6.1</iceberg.version>
             </properties>
         </profile>
         <profile>
