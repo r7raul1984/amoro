@@ -1676,6 +1676,7 @@
                 <spark.version>3.3.4</spark.version>
                 <spark.major.version>3.3</spark.major.version>
                 <iceberg.version>1.6.1</iceberg.version>
+                <parquet-avro.version>1.15.2</parquet-avro.version>
             </properties>
         </profile>
         <profile>
