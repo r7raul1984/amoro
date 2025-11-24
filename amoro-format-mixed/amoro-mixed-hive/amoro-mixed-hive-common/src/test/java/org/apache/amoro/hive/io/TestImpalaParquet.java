@@ -22,18 +22,19 @@ import org.apache.amoro.shade.guava32.com.google.common.collect.Iterators;
 import org.apache.iceberg.Files;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.data.Record;
-import org.apache.iceberg.data.parquet.AdaptHiveGenericParquetReaders;
 import org.apache.iceberg.expressions.Expressions;
 import org.apache.iceberg.io.CloseableIterator;
 import org.apache.iceberg.mapping.MappedField;
 import org.apache.iceberg.mapping.NameMapping;
 import org.apache.iceberg.parquet.AdaptHiveParquet;
+import org.apache.iceberg.parquet.IcebergParquetAdapter;
 import org.apache.iceberg.types.Types;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.ServiceLoader;
 
 /**
  * Impala may write string type column with binary value in parquet file, which is okay for Hive
@@ -47,13 +48,17 @@ public class TestImpalaParquet {
   public void testReadParquetFileProducedByImpala() {
     NameMapping mapping = NameMapping.of(MappedField.of(1, "str"));
     Schema schema = new Schema(Types.NestedField.of(1, true, "str", Types.StringType.get()));
-    AdaptHiveParquet.ReadBuilder builder =
+      ServiceLoader<IcebergParquetAdapter> loader = ServiceLoader.load(IcebergParquetAdapter.class);
+      IcebergParquetAdapter icebergParquetAdapter = loader.findFirst()
+              .orElseThrow(() -> new IllegalStateException("No IcebergParquetAdapter providers found"));
+
+      AdaptHiveParquet.ReadBuilder builder =
         AdaptHiveParquet.read(Files.localInput(loadParquetFilePath()))
             .project(schema)
             .withNameMapping(mapping)
             .createReaderFunc(
                 fileSchema ->
-                    AdaptHiveGenericParquetReaders.buildReader(schema, fileSchema, new HashMap<>()))
+                        icebergParquetAdapter.buildReader(schema, fileSchema, new HashMap<>()))
             .caseSensitive(false);
     for (Object o : builder.build()) {
       Record next = (Record) o;
@@ -65,14 +70,18 @@ public class TestImpalaParquet {
   public void testReadParquetFileProducedByImpalaWithFilter() {
     NameMapping mapping = NameMapping.of(MappedField.of(1, "str"));
     Schema schema = new Schema(Types.NestedField.of(1, true, "str", Types.StringType.get()));
-    AdaptHiveParquet.ReadBuilder builder =
+      ServiceLoader<IcebergParquetAdapter> loader = ServiceLoader.load(IcebergParquetAdapter.class);
+      IcebergParquetAdapter icebergParquetAdapter = loader.findFirst()
+              .orElseThrow(() -> new IllegalStateException("No IcebergParquetAdapter providers found"));
+
+      AdaptHiveParquet.ReadBuilder builder =
         AdaptHiveParquet.read(Files.localInput(loadParquetFilePath()))
             .project(schema)
             .withNameMapping(mapping)
             .filter(Expressions.in("str", "aa"))
             .createReaderFunc(
                 fileSchema ->
-                    AdaptHiveGenericParquetReaders.buildReader(schema, fileSchema, new HashMap<>()))
+                        icebergParquetAdapter.buildReader(schema, fileSchema, new HashMap<>()))
             .caseSensitive(false);
     CloseableIterator<Object> iterator = builder.build().iterator();
     Assert.assertEquals(0, Iterators.size(iterator));

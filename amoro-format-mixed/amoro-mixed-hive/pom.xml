@@ -27,6 +27,8 @@
     </parent>
 
     <artifactId>amoro-mixed-hive</artifactId>
+    <packaging>pom</packaging>
+
     <name>Amoro Project Mixed Hive Format</name>
     <url>https://amoro.apache.org</url>
 
@@ -102,5 +104,11 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <modules>
+        <module>amoro-mixed-hive-common</module>
+        <module>v${iceberg.version}/amoro-mixed-hive-iceberg-${iceberg.version}</module>
+    </modules>
+
 
 </project>
