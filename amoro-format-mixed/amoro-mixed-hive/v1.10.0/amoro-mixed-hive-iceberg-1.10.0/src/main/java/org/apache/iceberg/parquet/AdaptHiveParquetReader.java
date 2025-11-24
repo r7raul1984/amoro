@@ -39,7 +39,7 @@ import java.util.function.Function;
  * Copy from iceberg {@link org.apache.iceberg.parquet.ParquetReader} to use {@link
  * AdaptHiveReadConf}
  */
-public class AdaptHiveParquetReader<T> extends CloseableGroup implements CloseableIterable<T> {
+public class AdaptHiveParquetReader<T> extends CloseableGroup implements CloseableIterable<T>, HiveParquetAdapter<T> {
   private final InputFile input;
   private final Schema expectedSchema;
   private final ParquetReadOptions options;
@@ -100,7 +100,20 @@ public class AdaptHiveParquetReader<T> extends CloseableGroup implements Closeab
     return iter;
   }
 
-  private static class FileIterator<T> implements CloseableIterator<T> {
+    @Override
+    public CloseableIterable<T> createParquetReader(InputFile input, Schema expectedSchema, ParquetReadOptions options, Function<MessageType, ParquetValueReader<?>> readerFunc, NameMapping nameMapping, Expression filter, boolean reuseContainers, boolean caseSensitive) {
+        return new AdaptHiveParquetReader<>(
+                input,
+                expectedSchema,
+                options,
+                readerFunc,
+                nameMapping,
+                filter,
+                reuseContainers,
+                caseSensitive);
+    }
+
+    private static class FileIterator<T> implements CloseableIterator<T> {
     private final ParquetFileReader reader;
     private final boolean[] shouldSkip;
     private final ParquetValueReader<T> model;

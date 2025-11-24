@@ -21,6 +21,7 @@ package org.apache.iceberg.data.parquet;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.data.GenericRecord;
 import org.apache.iceberg.data.Record;
+import org.apache.iceberg.parquet.IcebergParquetAdapter;
 import org.apache.iceberg.parquet.ParquetValueReader;
 import org.apache.iceberg.parquet.ParquetValueReaders.StructReader;
 import org.apache.iceberg.types.Types.StructType;
@@ -30,7 +31,7 @@ import org.apache.parquet.schema.Type;
 import java.util.List;
 import java.util.Map;
 
-public class AdaptHiveGenericParquetReaders extends AdaptHiveBaseParquetReaders<Record> {
+public class AdaptHiveGenericParquetReaders extends AdaptHiveBaseParquetReaders<Record> implements IcebergParquetAdapter {
 
   private static final AdaptHiveGenericParquetReaders INSTANCE =
       new AdaptHiveGenericParquetReaders();
@@ -42,7 +43,7 @@ public class AdaptHiveGenericParquetReaders extends AdaptHiveBaseParquetReaders<
     return INSTANCE.createReader(expectedSchema, fileSchema);
   }
 
-  public static ParquetValueReader<Record> buildReader(
+  public ParquetValueReader<Record> buildReader(
       Schema expectedSchema, MessageType fileSchema, Map<Integer, ?> idToConstant) {
     return INSTANCE.createReader(expectedSchema, fileSchema, idToConstant);
   }
