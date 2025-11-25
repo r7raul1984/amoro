@@ -1697,6 +1697,7 @@
             <properties>
                 <java.target.version>8</java.target.version>
                 <java.source.version>8</java.source.version>
+                <iceberg.version>1.6.1</iceberg.version>
             </properties>
         </profile>
         <profile>
