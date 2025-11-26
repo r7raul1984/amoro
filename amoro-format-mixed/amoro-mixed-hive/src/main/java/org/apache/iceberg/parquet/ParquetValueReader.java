@@ -29,10 +29,7 @@ public interface ParquetValueReader<T> {
 
   List<TripleIterator<?>> columns();
 
-  default void setPageSource(PageReadStore pageStore) {
-    throw new UnsupportedOperationException(
-        this.getClass().getName() + " doesn't implement setPageSource(PageReadStore)");
-  }
+  default void setPageSource(PageReadStore pageStore) {}
 
   default void setPageSource(PageReadStore pageStore, long rowPosition) {
     setPageSource(pageStore);
