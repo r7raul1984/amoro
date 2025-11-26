@@ -186,7 +186,7 @@ public class IcebergRewriteExecutorTest extends TableTestBase {
         openFile(
             output.getDeleteFiles()[0].path().toString(),
             output.getDataFiles()[0].format(),
-            new Schema(MetadataColumns.DELETE_FILE_PATH, MetadataColumns.DELETE_FILE_POS),
+            posSchema,
             new HashMap<>())) {
       Assert.assertEquals(2, Iterables.size(records));
       Record first = Iterables.getFirst(records, null);
