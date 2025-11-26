@@ -155,12 +155,6 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
   }
 
   @Override
-  public Type variant(
-      org.apache.iceberg.types.Types.VariantType expected, GroupType variantGroup, Type variant) {
-    return variant;
-  }
-
-  @Override
   public Type primitive(
       org.apache.iceberg.types.Type.PrimitiveType expected, PrimitiveType primitive) {
     return null;
@@ -171,7 +165,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
   }
 
   private boolean isStruct(Type field, NestedField expected) {
-    if (field.isPrimitive() || expected.type().isVariantType()) {
+    if (field.isPrimitive()) {
       return false;
     } else {
       GroupType groupType = field.asGroupType();
