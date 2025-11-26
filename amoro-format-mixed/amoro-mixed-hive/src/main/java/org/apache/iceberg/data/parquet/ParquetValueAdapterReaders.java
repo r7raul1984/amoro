@@ -67,7 +67,7 @@ public class ParquetValueAdapterReaders {
     @Override
     public void setPageSource(PageReadStore pageStore, long rowPosition) {
       for (ParquetValueReader<?> reader : readers) {
-        reader.setPageSource(pageStore);
+        reader.setPageSource(pageStore, rowPosition);
       }
     }
 

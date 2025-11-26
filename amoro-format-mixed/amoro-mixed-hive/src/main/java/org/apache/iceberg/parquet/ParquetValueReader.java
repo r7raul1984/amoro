@@ -31,7 +31,5 @@ public interface ParquetValueReader<T> {
 
   default void setPageSource(PageReadStore pageStore) {}
 
-  default void setPageSource(PageReadStore pageStore, long rowPosition) {
-    setPageSource(pageStore);
-  }
+  default void setPageSource(PageReadStore pageStore, long rowPosition) {}
 }
