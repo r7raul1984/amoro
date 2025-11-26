@@ -22,7 +22,6 @@ import org.apache.iceberg.Schema;
 import org.apache.iceberg.data.GenericRecord;
 import org.apache.iceberg.data.Record;
 import org.apache.iceberg.parquet.ParquetValueReader;
-import org.apache.iceberg.parquet.ParquetValueReaders.StructReader;
 import org.apache.iceberg.types.Types.StructType;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Type;
@@ -53,7 +52,8 @@ public class AdaptHiveGenericParquetReaders extends AdaptHiveBaseParquetReaders<
     return new RecordReader(types, fieldReaders, structType);
   }
 
-  private static class RecordReader extends StructReader<Record, Record> {
+  private static class RecordReader
+      extends ParquetValueAdapterReaders.StructReader<Record, Record> {
     private final StructType structType;
 
     RecordReader(List<Type> types, List<ParquetValueReader<?>> readers, StructType struct) {

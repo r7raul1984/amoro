@@ -523,7 +523,8 @@ public class SparkParquetReaders {
   }
 
   private static class InternalRowReader
-      extends ParquetValueReaders.StructReader<InternalRow, GenericInternalRow> {
+      extends org.apache.amoro.spark.reader.ParquetValueReaders.StructReader<
+          InternalRow, GenericInternalRow> {
     private final int numFields;
 
     InternalRowReader(List<Type> types, List<ParquetValueReader<?>> readers) {
