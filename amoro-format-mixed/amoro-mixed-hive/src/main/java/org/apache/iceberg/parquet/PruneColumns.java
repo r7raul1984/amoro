@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-class PruneColumns extends ParquetTypeVisitor<Type> {
+class PruneColumns extends TypeWithSchemaVisitor<Type> {
   private final Set<Integer> selectedIds;
 
   PruneColumns(Set<Integer> selectedIds) {
@@ -41,7 +41,8 @@ class PruneColumns extends ParquetTypeVisitor<Type> {
   }
 
   @Override
-  public Type message(MessageType message, List<Type> fields) {
+  public Type message(
+      org.apache.iceberg.types.Types.StructType expected, MessageType message, List<Type> fields) {
     Types.MessageTypeBuilder builder = Types.buildMessage();
 
     boolean hasChange = false;
@@ -55,7 +56,7 @@ class PruneColumns extends ParquetTypeVisitor<Type> {
           hasChange = true;
           builder.addField(field);
         } else {
-          if (isStruct(originalField)) {
+          if (isStruct(originalField, expected.field(fieldId))) {
             hasChange = true;
             builder.addField(originalField.asGroupType().withNewFields(Collections.emptyList()));
           } else {
@@ -80,7 +81,8 @@ class PruneColumns extends ParquetTypeVisitor<Type> {
   }
 
   @Override
-  public Type struct(GroupType struct, List<Type> fields) {
+  public Type struct(
+      org.apache.iceberg.types.Types.StructType expected, GroupType struct, List<Type> fields) {
     boolean hasChange = false;
     List<Type> filteredFields = Lists.newArrayListWithExpectedSize(fields.size());
     for (int i = 0; i < fields.size(); i += 1) {
@@ -107,7 +109,7 @@ class PruneColumns extends ParquetTypeVisitor<Type> {
   }
 
   @Override
-  public Type list(GroupType list, Type element) {
+  public Type list(org.apache.iceberg.types.Types.ListType expected, GroupType list, Type element) {
     Type repeated = list.getType(0);
     Type originalElement = ParquetSchemaUtil.determineListElementType(list);
     Integer elementId = getId(originalElement);
@@ -129,7 +131,8 @@ class PruneColumns extends ParquetTypeVisitor<Type> {
   }
 
   @Override
-  public Type map(GroupType map, Type key, Type value) {
+  public Type map(
+      org.apache.iceberg.types.Types.MapType expected, GroupType map, Type key, Type value) {
     GroupType repeated = map.getType(0).asGroupType();
     Type originalKey = repeated.getType(0);
     Type originalValue = repeated.getType(1);
@@ -151,7 +154,8 @@ class PruneColumns extends ParquetTypeVisitor<Type> {
   }
 
   @Override
-  public Type primitive(PrimitiveType primitive) {
+  public Type primitive(
+      org.apache.iceberg.types.Type.PrimitiveType expected, PrimitiveType primitive) {
     return null;
   }
 
@@ -159,7 +163,7 @@ class PruneColumns extends ParquetTypeVisitor<Type> {
     return type.getId() == null ? null : type.getId().intValue();
   }
 
-  private boolean isStruct(Type field) {
+  private boolean isStruct(Type field, org.apache.iceberg.types.Types.NestedField expected) {
     if (field.isPrimitive()) {
       return false;
     } else {
