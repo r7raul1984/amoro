@@ -52,7 +52,8 @@ public class AdaptHiveGenericParquetReaders extends AdaptHiveBaseParquetReaders<
     return new RecordReader(types, fieldReaders, structType);
   }
 
-  private static class RecordReader extends ParquetValueAdapterReaders.StructReader<Record, Record> {
+  private static class RecordReader
+      extends ParquetValueAdapterReaders.StructReader<Record, Record> {
     private final StructType structType;
 
     RecordReader(List<Type> types, List<ParquetValueReader<?>> readers, StructType struct) {
