@@ -46,6 +46,11 @@
             <artifactId>hive-metastore</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.amoro</groupId>
+            <artifactId>amoro-shade-guava-32</artifactId>
+        </dependency>
+
         <!-- test dependencies -->
         <dependency>
             <groupId>org.apache.hive</groupId>
