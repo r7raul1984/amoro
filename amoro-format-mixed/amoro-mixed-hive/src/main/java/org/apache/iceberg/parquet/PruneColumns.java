@@ -21,10 +21,6 @@ package org.apache.iceberg.parquet;
 import org.apache.amoro.shade.guava32.com.google.common.base.Objects;
 import org.apache.amoro.shade.guava32.com.google.common.base.Preconditions;
 import org.apache.amoro.shade.guava32.com.google.common.collect.Lists;
-import org.apache.iceberg.types.Types.ListType;
-import org.apache.iceberg.types.Types.MapType;
-import org.apache.iceberg.types.Types.NestedField;
-import org.apache.iceberg.types.Types.StructType;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
@@ -36,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-class PruneColumns extends TypeWithSchemaVisitor<Type> {
+class PruneColumns extends ParquetTypeVisitor<Type> {
   private final Set<Integer> selectedIds;
 
   PruneColumns(Set<Integer> selectedIds) {
@@ -45,7 +41,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
   }
 
   @Override
-  public Type message(StructType expected, MessageType message, List<Type> fields) {
+  public Type message(MessageType message, List<Type> fields) {
     Types.MessageTypeBuilder builder = Types.buildMessage();
 
     boolean hasChange = false;
@@ -59,7 +55,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
           hasChange = true;
           builder.addField(field);
         } else {
-          if (isStruct(originalField, expected.field(fieldId))) {
+          if (isStruct(originalField)) {
             hasChange = true;
             builder.addField(originalField.asGroupType().withNewFields(Collections.emptyList()));
           } else {
@@ -84,7 +80,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
   }
 
   @Override
-  public Type struct(StructType expected, GroupType struct, List<Type> fields) {
+  public Type struct(GroupType struct, List<Type> fields) {
     boolean hasChange = false;
     List<Type> filteredFields = Lists.newArrayListWithExpectedSize(fields.size());
     for (int i = 0; i < fields.size(); i += 1) {
@@ -111,7 +107,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
   }
 
   @Override
-  public Type list(ListType expected, GroupType list, Type element) {
+  public Type list(GroupType list, Type element) {
     Type repeated = list.getType(0);
     Type originalElement = ParquetSchemaUtil.determineListElementType(list);
     Integer elementId = getId(originalElement);
@@ -133,7 +129,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
   }
 
   @Override
-  public Type map(MapType expected, GroupType map, Type key, Type value) {
+  public Type map(GroupType map, Type key, Type value) {
     GroupType repeated = map.getType(0).asGroupType();
     Type originalKey = repeated.getType(0);
     Type originalValue = repeated.getType(1);
@@ -155,8 +151,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
   }
 
   @Override
-  public Type primitive(
-      org.apache.iceberg.types.Type.PrimitiveType expected, PrimitiveType primitive) {
+  public Type primitive(PrimitiveType primitive) {
     return null;
   }
 
@@ -164,7 +159,7 @@ class PruneColumns extends TypeWithSchemaVisitor<Type> {
     return type.getId() == null ? null : type.getId().intValue();
   }
 
-  private boolean isStruct(Type field, NestedField expected) {
+  private boolean isStruct(Type field) {
     if (field.isPrimitive()) {
       return false;
     } else {
