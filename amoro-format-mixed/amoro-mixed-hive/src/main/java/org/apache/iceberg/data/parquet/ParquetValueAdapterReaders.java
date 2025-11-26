@@ -27,8 +27,8 @@ import org.apache.parquet.schema.Type;
 import java.lang.reflect.Array;
 import java.util.List;
 
-public class ParquetValueReaders {
-  private ParquetValueReaders() {}
+public class ParquetValueAdapterReaders {
+  private ParquetValueAdapterReaders() {}
 
   public abstract static class StructReader<T, I> implements ParquetValueReader<T> {
     private final ParquetValueReader<?>[] readers;
@@ -147,17 +147,17 @@ public class ParquetValueReaders {
      */
     private TripleIterator<?> firstNonNullColumn(List<TripleIterator<?>> columns) {
       for (TripleIterator<?> col : columns) {
-        if (col != ParquetValueReaders.NullReader.NULL_COLUMN) {
+        if (col != ParquetValueAdapterReaders.NullReader.NULL_COLUMN) {
           return col;
         }
       }
-      return ParquetValueReaders.NullReader.NULL_COLUMN;
+      return ParquetValueAdapterReaders.NullReader.NULL_COLUMN;
     }
   }
 
   private static class NullReader<T> implements ParquetValueReader<T> {
-    private static final ParquetValueReaders.NullReader<Void> INSTANCE =
-        new ParquetValueReaders.NullReader<>();
+    private static final ParquetValueAdapterReaders.NullReader<Void> INSTANCE =
+        new ParquetValueAdapterReaders.NullReader<>();
     private static final ImmutableList<TripleIterator<?>> COLUMNS = ImmutableList.of();
     private static final TripleIterator<?> NULL_COLUMN =
         new TripleIterator<Object>() {
