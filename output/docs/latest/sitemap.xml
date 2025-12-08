@@ -6,6 +6,8 @@
   </url><url>
     <loc>https://amoro.apache.org/docs/latest/admin-guides/</loc>
   </url><url>
+    <loc>https://amoro.apache.org/docs/latest/ams-config/</loc>
+  </url><url>
     <loc>https://amoro.apache.org/docs/latest/catalogs/</loc>
   </url><url>
     <loc>https://amoro.apache.org/docs/latest/categories/</loc>
@@ -13,6 +15,8 @@
     <loc>https://amoro.apache.org/docs/latest/cdc-ingestion/</loc>
   </url><url>
     <loc>https://amoro.apache.org/docs/latest/concepts/</loc>
+  </url><url>
+    <loc>https://amoro.apache.org/docs/latest/configuration/</loc>
   </url><url>
     <loc>https://amoro.apache.org/docs/latest/configurations/</loc>
   </url><url>
