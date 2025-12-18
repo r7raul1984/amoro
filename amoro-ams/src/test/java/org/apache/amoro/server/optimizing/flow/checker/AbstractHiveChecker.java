@@ -30,9 +30,9 @@ import org.apache.amoro.table.MixedTable;
 import org.apache.hadoop.hive.metastore.api.Partition;
 import org.apache.hadoop.hive.metastore.api.StorageDescriptor;
 import org.apache.iceberg.data.Record;
-import org.apache.iceberg.data.parquet.AdaptHiveGenericParquetReaders;
 import org.apache.iceberg.io.CloseableIterable;
 import org.apache.iceberg.parquet.AdaptHiveParquet;
+import org.apache.iceberg.parquet.IcebergParquetAdapter;
 
 import javax.annotation.Nullable;
 
@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -140,12 +141,15 @@ public abstract class AbstractHiveChecker extends OptimizingCountChecker {
   }
 
   private CloseableIterable<Record> newParquetIterable(String path, MixedTable table) {
+      ServiceLoader<IcebergParquetAdapter> loader = ServiceLoader.load(IcebergParquetAdapter.class);
+      IcebergParquetAdapter icebergParquetAdapter = loader.findFirst()
+              .orElseThrow(() -> new IllegalStateException("No IcebergParquetAdapter providers found"));
     AdaptHiveParquet.ReadBuilder builder =
         AdaptHiveParquet.read(table.io().newInputFile(path))
             .project(table.schema())
             .createReaderFunc(
                 fileSchema ->
-                    AdaptHiveGenericParquetReaders.buildReader(
+                        icebergParquetAdapter.buildReader(
                         table.schema(), fileSchema, new HashMap<>()))
             .caseSensitive(false);
     return builder.build();
